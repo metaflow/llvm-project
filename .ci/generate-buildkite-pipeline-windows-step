@@ -20,7 +20,7 @@ cat <<EOF
   commands:
   - sccache --zero-stats
   - C:\BuildTools\Common7\Tools\VsDevCmd.bat -arch=amd64 -host_arch=amd64
-  - rm /s /q ./build && mkdir ./build && cd ./build
+  - rmdir /s /q ./build && mkdir ./build && cd ./build
   - cd
   - cmake ../llvm \
     -G Ninja \

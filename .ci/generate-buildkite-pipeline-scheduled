@@ -19,9 +19,9 @@ set -o pipefail
 
 echo "steps:"
 
-INPUT_LLVM_ENABLE_PROJECTS="bolt;clang;clang-tools-extra;compiler-rt;flang;libc;libclc;lld;llvm;mlir;polly;pstl" \
-  INPUT_BUILDKITE_QUEUE="linux-test" \
-  .ci/generate-buildkite-pipeline-linux-step
+# INPUT_LLVM_ENABLE_PROJECTS="bolt;clang;clang-tools-extra;compiler-rt;flang;libc;libclc;lld;llvm;mlir;polly;pstl" \
+#   INPUT_BUILDKITE_QUEUE="linux-test" \
+#   .ci/generate-buildkite-pipeline-linux-step
 
 INPUT_LLVM_ENABLE_PROJECTS="clang;clang-tools-extra;flang;libclc;lld;llvm;mlir;polly;pstl" \
   INPUT_BUILDKITE_QUEUE="windows-test" \
