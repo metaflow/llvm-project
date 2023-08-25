@@ -14,10 +14,11 @@
 # See https://buildkite.com/docs/agent/v3/cli-pipeline#pipeline-format.
 #
 
-if ! git diff --name-only HEAD~1 | grep -q -E "^libcxx/|^libcxxabi/|^libunwind/|^runtimes/|^cmake/|^clang/"; then
-  # libcxx/, libcxxabi/, libunwind/, runtimes/, cmake/ or clang/ are not affected
-  exit 0
-fi
+
+set -eu
+set -o pipefail
+
+echo "steps:"
 
 reviewID="$(git log --format=%B -n 1 | sed -nE 's/^Review-ID:[[:space:]]*(.+)$/\1/p')"
 if [[ "${reviewID}" != "" ]]; then
@@ -25,10 +26,6 @@ if [[ "${reviewID}" != "" ]]; then
 else
   buildMessage="Push to branch ${BUILDKITE_BRANCH}"
 fi
-
-cat <<EOF
-steps:
-EOF
 
 # If libc++ or one of the runtimes directories changed
 if git diff --name-only HEAD~1 | grep -q -E "^libcxx/|^libcxxabi/|^libunwind/|^runtimes/|^cmake/"; then
@@ -50,4 +47,35 @@ if git diff --name-only HEAD~1 | grep -q -E "^clang/"; then
       commit: "${BUILDKITE_COMMIT}"
       branch: "${BUILDKITE_BRANCH}"
 EOF
+
+INPUT_LLVM_ENABLE_PROJECTS="mlir;clang;llvm" \
+  INPUT_BUILDKITE_QUEUE="linux-test" \
+  .ci/generate-buildkite-pipeline-linux-step
+
+INPUT_LLVM_ENABLE_PROJECTS="llvm" \
+  INPUT_BUILDKITE_QUEUE="windows" \
+  .ci/generate-buildkite-pipeline-windows-step
+
+- continue_on_failure: true
+  wait: '~'
+- agents:
+    queue: service
+  artifact_paths:
+  - artifacts/**/*
+  commands:
+  - export SRC=$${BUILDKITE_BUILD_PATH}/llvm-premerge-checks
+  - rm -rf $${SRC}
+  - git clone --depth 1 https://github.com/google/llvm-premerge-checks.git "$${SRC}"
+  - cd $${SRC}
+  - git fetch origin "main":x
+  - git checkout x
+  - echo "llvm-premerge-checks commit"
+  - git rev-parse HEAD
+  - pip install -q -r $${SRC}/scripts/requirements.txt
+  - cd "$$BUILDKITE_BUILD_CHECKOUT_PATH"
+  - $${SRC}/scripts/summary.py
+  label: ':phabricator: update build status on Phabricator'
+  timeout_in_minutes: 10
+
+
 fi
