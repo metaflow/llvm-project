@@ -28,21 +28,21 @@ INPUT_LLVM_ENABLE_PROJECTS="clang;clang-tools-extra;flang;libclc;lld;llvm;mlir;p
   .ci/generate-buildkite-pipeline-windows-step
 
 cat <<EOF
-- agents:
-    queue: llvm-bazel-premerge
-  commands:
-  - set -eu
-  - cd utils/bazel
-  - bazel query //... + @llvm-project//... | xargs bazel test --config=ci
-  key: bazel
-  label: ':bazel: bazel'
-  retry:
-    automatic:
-    - exit_status: -1
-      limit: 2
-    - exit_status: 255
-      limit: 2
-  timeout_in_minutes: 120
+# - agents:
+#     queue: llvm-bazel-premerge
+#   commands:
+#   - set -eu
+#   - cd utils/bazel
+#   - bazel query //... + @llvm-project//... | xargs bazel test --config=ci
+#   key: bazel
+#   label: ':bazel: bazel'
+#   retry:
+#     automatic:
+#     - exit_status: -1
+#       limit: 2
+#     - exit_status: 255
+#       limit: 2
+#   timeout_in_minutes: 120
 # - trigger: "libcxx-ci"
 #   build:
 #     message: "${BUILDKITE_MESSAGE}"
