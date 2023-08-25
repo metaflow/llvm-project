@@ -20,8 +20,11 @@ cat <<EOF
   commands:
   - sccache --zero-stats
   - C:\BuildTools\Common7\Tools\VsDevCmd.bat -arch=amd64 -host_arch=amd64
-  - rmdir /s /q .\build && mkdir .\build && cd .\build
+  - rmdir /s /q .\build
+  - mkdir .\build
+  - cd .\build
   - cd
+  - dir
   - cmake ../llvm \
     -G Ninja \
     -D CMAKE_BUILD_TYPE=Release \
@@ -42,4 +45,4 @@ cat <<EOF
     - exit_status: 255
       limit: 2
   timeout_in_minutes: 150
-EOF
+EOFz
