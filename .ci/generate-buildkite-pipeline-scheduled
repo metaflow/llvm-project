@@ -43,14 +43,14 @@ cat <<EOF
     - exit_status: 255
       limit: 2
   timeout_in_minutes: 120
-- trigger: "libcxx-ci"
-  build:
-    message: "${BUILDKITE_MESSAGE}"
-    commit: "${BUILDKITE_COMMIT}"
-    branch: "${BUILDKITE_BRANCH}"
-- trigger: "clang-ci"
-  build:
-    message: "${BUILDKITE_MESSAGE}"
-    commit: "${BUILDKITE_COMMIT}"
-    branch: "${BUILDKITE_BRANCH}"
+# - trigger: "libcxx-ci"
+#   build:
+#     message: "${BUILDKITE_MESSAGE}"
+#     commit: "${BUILDKITE_COMMIT}"
+#     branch: "${BUILDKITE_BRANCH}"
+# - trigger: "clang-ci"
+#   build:
+#     message: "${BUILDKITE_MESSAGE}"
+#     commit: "${BUILDKITE_COMMIT}"
+#     branch: "${BUILDKITE_BRANCH}"
 EOF
