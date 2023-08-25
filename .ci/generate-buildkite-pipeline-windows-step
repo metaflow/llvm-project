@@ -11,7 +11,6 @@ set -eu
 set -o pipefail
 
 cat <<EOF
-steps:
 - agents:
     queue: ${INPUT_BUILDKITE_QUEUE:-windows}
   artifact_paths:
@@ -21,7 +20,7 @@ steps:
   commands:
   - sccache --zero-stats
   - C:\BuildTools\Common7\Tools\VsDevCmd.bat -arch=amd64 -host_arch=amd64
-  - rd /s /q .\build && mkdir .\build && cd .\build
+  - rm /s /q ./build && mkdir ./build && cd ./build
   - cmake ../llvm \
     -G Ninja \
     -D CMAKE_BUILD_TYPE=Release \

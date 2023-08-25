@@ -11,7 +11,6 @@ set -eu
 set -o pipefail
 
 cat <<EOF
-steps:
 - agents:
     queue: "${INPUT_BUILDKITE_QUEUE:-linux-test}"
   commands:
@@ -29,7 +28,7 @@ steps:
     -D COMPILER_RT_BUILD_LIBFUZZER=OFF \
     -D LLVM_LIT_ARGS="-v --xunit-xml-output test-results.xml"
   - echo "--- test"
-  - ninja -v "${INPUT_NINJA_COMMAND:-check_all}"
+  - ninja -v check_all
   - echo "--- sccache stats"
   - sccache --show-stats
   env:
