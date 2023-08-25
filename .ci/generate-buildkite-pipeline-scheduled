@@ -16,15 +16,155 @@
 
 cat <<EOF
 steps:
-  - trigger: "libcxx-ci"
-    build:
-      message: "${BUILDKITE_MESSAGE}"
-      commit: "${BUILDKITE_COMMIT}"
-      branch: "${BUILDKITE_BRANCH}"
-
-  - trigger: "clang-ci"
-    build:
-      message: "${BUILDKITE_MESSAGE}"
-      commit: "${BUILDKITE_COMMIT}"
-      branch: "${BUILDKITE_BRANCH}"
+  - agents:
+      queue: "linux-test"
+    commands:
+    - sccache --zero-stats
+    - mkdir -p build && cd build
+    - echo "--- configure"
+    - cmake ../llvm \
+      -D LLVM_ENABLE_PROJECTS="mlir;clang;compiler-rt;llvm" \
+      -G Ninja -D CMAKE_BUILD_TYPE=Release \
+      -D LLVM_ENABLE_LLD=ON -D CMAKE_CXX_FLAGS=-gmlt -DBOLT_CLANG_EXE=/usr/bin/clang
+      -D LLDB_INCLUDE_TESTS=OFF \
+      -D CMAKE_C_COMPILER_LAUNCHER=sccache -D CMAKE_CXX_COMPILER_LAUNCHER=sccache
+      -D LLVM_ENABLE_ASSERTIONS=ON -D LLVM_BUILD_EXAMPLES=ON -D COMPILER_RT_BUILD_LIBFUZZER=OFF \
+      -D LLVM_LIT_ARGS="-v --xunit-xml-output test-results.xml"
+    - echo "--- test"
+    - ninja check-all
+    - echo "--- sccache stats"
+    - sccache --show-stats
+    env:
+      CC: "clang"
+      CXX: "clang++"
+      LD: "LLD"
+    key: linux
+    label: ':linux: linux x86'
+    retry:
+      automatic:
+      - exit_status: -1
+        limit: 2
+      - exit_status: 255
+        limit: 2
+    timeout_in_minutes: 120
+  # - trigger: "libcxx-ci"
+  #   build:
+  #     message: "${BUILDKITE_MESSAGE}"
+  #     commit: "${BUILDKITE_COMMIT}"
+  #     branch: "${BUILDKITE_BRANCH}"
+  # - trigger: "clang-ci"
+  #   build:
+  #     message: "${BUILDKITE_MESSAGE}"
+  #     commit: "${BUILDKITE_COMMIT}"
+  #     branch: "${BUILDKITE_BRANCH}"
 EOF
+
+
+# steps:
+# - agents:
+#     queue: linux
+#   artifact_paths:
+#   - artifacts/**/*
+#   - '*_result.json'
+#   - build/test-results.xml
+#   commands:
+#   - set -euo pipefail
+#   - ''
+#   - ccache --zero-stats
+#   - ccache --show-config
+#   - mkdir -p artifacts
+#   - dpkg -l >> artifacts/packages.txt
+#   - export SRC=$${BUILDKITE_BUILD_PATH}/llvm-premerge-checks
+#   - rm -rf $${SRC}
+#   - git clone --depth 1 https://github.com/google/llvm-premerge-checks.git "$${SRC}"
+#   - cd $${SRC}
+#   - git fetch origin "main":x
+#   - git checkout x
+#   - echo "llvm-premerge-checks commit"
+#   - git rev-parse HEAD
+#   - pip install -q -r $${SRC}/scripts/requirements.txt
+#   - cd "$$BUILDKITE_BUILD_CHECKOUT_PATH"
+#   - set +e
+#   - pip install -q -r ./mlir/python/requirements.txt
+#   - $${SRC}/scripts/premerge_checks.py --projects="bolt;clang;clang-tools-extra;compiler-rt;flang;libc;libclc;lld;llvm;mlir;polly;pstl"
+#     --log-level=WARNING
+#   - EXIT_STATUS=$$?
+#   - echo "--- ccache stats"
+#   - ccache --print-stats
+#   - exit $$EXIT_STATUS
+#   env: &id001
+#     BUILDKITE_BRANCH: main
+#     BUILDKITE_COMMIT: adaae6a7c1ae74188111200eed9b64cac77d096f
+#     BUILDKITE_MESSAGE: Scheduled build
+#     ph_scripts_refspec: main
+#   key: linux
+#   label: ':linux: x64 debian'
+#   retry:
+#     automatic:
+#     - exit_status: -1
+#       limit: 2
+#     - exit_status: 255
+#       limit: 2
+#   timeout_in_minutes: 120
+# - agents:
+#     queue: windows
+#   artifact_paths:
+#   - artifacts/**/*
+#   - '*_result.json'
+#   - build/test-results.xml
+#   commands:
+#   - ''
+#   - sccache --zero-stats
+#   - C:\BuildTools\Common7\Tools\VsDevCmd.bat -arch=amd64 -host_arch=amd64
+#   - set SRC=%BUILDKITE_BUILD_PATH%/llvm-premerge-checks
+#   - rm -rf %SRC%
+#   - git clone --depth 1 https://github.com/google/llvm-premerge-checks.git %SRC%
+#   - cd %SRC%
+#   - git fetch origin "main":x
+#   - git checkout x
+#   - 'echo llvm-premerge-checks commit:'
+#   - git rev-parse HEAD
+#   - pip install -q -r %SRC%/scripts/requirements.txt
+#   - cd %BUILDKITE_BUILD_CHECKOUT_PATH%
+#   - pip install -q -r ./mlir/python/requirements.txt
+#   - powershell -command "%SRC%/scripts/premerge_checks.py --projects='clang;clang-tools-extra;flang;libclc;lld;llvm;mlir;polly;pstl'
+#     --log-level=WARNING; $$exit=$$?;sccache --show-stats;if ($$exit) {  echo success;  exit
+#     0; } else {  echo failure;  exit 1;}"
+#   env: *id001
+#   key: windows
+#   label: ':windows: x64 windows'
+#   retry:
+#     automatic:
+#     - exit_status: -1
+#       limit: 2
+#     - exit_status: 255
+#       limit: 2
+#   timeout_in_minutes: 150
+# - agents:
+#     queue: llvm-bazel-premerge
+#   commands:
+#   - set -eu
+#   - cd utils/bazel
+#   - bazel query //... + @llvm-project//... | xargs bazel test --config=ci
+#   env: *id001
+#   key: bazel
+#   label: ':bazel: bazel'
+#   retry:
+#     automatic:
+#     - exit_status: -1
+#       limit: 2
+#     - exit_status: 255
+#       limit: 2
+#   timeout_in_minutes: 120
+# - build:
+#     branch: main
+#     commit: adaae6a7c1ae74188111200eed9b64cac77d096f
+#     env: *id001
+#     message: Scheduled build
+#   trigger: libcxx-ci
+# - build:
+#     branch: main
+#     commit: adaae6a7c1ae74188111200eed9b64cac77d096f
+#     env: *id001
+#     message: Scheduled build
+#   trigger: clang-ci
