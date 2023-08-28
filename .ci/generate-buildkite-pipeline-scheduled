@@ -24,7 +24,7 @@ echo "steps:"
 #   .ci/generate-buildkite-pipeline-linux-step
 
 # INPUT_LLVM_ENABLE_PROJECTS="clang;clang-tools-extra;flang;libclc;lld;llvm;mlir;polly;pstl" \
-INPUT_LLVM_ENABLE_PROJECTS="llvm" \
+INPUT_LLVM_ENABLE_PROJECTS="" \
   INPUT_BUILDKITE_QUEUE="windows-test" \
   .ci/generate-buildkite-pipeline-windows-step
 
