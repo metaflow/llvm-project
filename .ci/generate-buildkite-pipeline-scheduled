@@ -33,7 +33,7 @@ cat <<EOF
     - artifacts/**/*
     - '*_result.json'
     - 'build/test-results.xml'
-  agents: ${LINUX_AGENTS:-"{\"queue\": \"linux\"}"}
+  agents: ${LINUX_AGENTS:-"{\"queue\": \"linux-test\"}"}
   retry:
     automatic:
     - exit_status: -1  # Agent was lost
@@ -51,7 +51,7 @@ cat <<EOF
     - artifacts/**/*
     - '*_result.json'
     - 'build/test-results.xml'
-  agents: "${WINDOWS_AGENTS:-'{"queue": "windows"}'}"
+  agents: \"${WINDOWS_AGENTS:-'{"queue": "windows-test"}'}\"
   retry:
     automatic:
     - exit_status: -1  # Agent was lost
