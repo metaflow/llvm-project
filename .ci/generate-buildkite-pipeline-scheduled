@@ -33,7 +33,7 @@ cat <<EOF
     - artifacts/**/*
     - '*_result.json'
     - 'build/test-results.xml'
-  agents: "${LINUX_AGENTS:-'{"queue": "linux"}'}"
+  agents: ${LINUX_AGENTS:-"{\"queue\": \"linux\"}"}
   retry:
     automatic:
     - exit_status: -1  # Agent was lost
