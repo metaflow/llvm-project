@@ -18,7 +18,6 @@ cat <<EOF
   - '*_result.json'
   - build/test-results.xml
   commands:
-  - exit 0
   - sccache --zero-stats
   - C:\BuildTools\Common7\Tools\VsDevCmd.bat -arch=amd64 -host_arch=amd64
   - if exist .\build rmdir .\build /s /q
