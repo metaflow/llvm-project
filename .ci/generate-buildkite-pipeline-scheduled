@@ -42,7 +42,7 @@ cat <<EOF
         limit: 2
   timeout_in_minutes: 120
   commands:
-    - './.ci/monolithic-linux.sh ""${LINUX_TARGETS:-'bolt;clang;clang-tools-extra;compiler-rt;flang;libc;libclc;lld;llvm;mlir;polly;pstl'}" "check-all"'
+    - './.ci/monolithic-linux.sh ""${LINUX_PROJECTS:-'bolt;clang;clang-tools-extra;compiler-rt;flang;libc;libclc;lld;llvm;mlir;polly;pstl'}" "check-all"'
 EOF
 
 echo <<EOF
@@ -61,7 +61,7 @@ retry:
 timeout_in_minutes: 150
 commands:
   - 'C:\\BuildTools\\Common7\\Tools\\VsDevCmd.bat -arch=amd64 -host_arch=amd64'
-  - 'bash .ci/monolithic-windows.sh "${WINDOWS_TARGETS:-'clang;clang-tools-extra;flang;libclc;lld;llvm;mlir;polly;pstl'}" "check-all"'
+  - 'bash .ci/monolithic-windows.sh "${WINDOWS_PROJECTS:-'clang;clang-tools-extra;flang;libclc;lld;llvm;mlir;polly;pstl'}" "check-all"'
 EOF
 
 cat <<EOF
