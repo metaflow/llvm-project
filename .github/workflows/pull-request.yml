@@ -1,0 +1,27 @@
+name: Pull Requests
+
+on:
+  pull_request:
+    branches:
+        - main
+  push:
+    branches:
+        - main
+
+jobs:
+  tests:
+    name: Tests
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+          - ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Build and Test
+        uses: llvm/actions/build-test-llvm-project@main
+        with:
+          cmake_args: '-GNinja -DLLVM_ENABLE_PROJECTS="llvm" -DCMAKE_BUILD_TYPE=Release -DLLDB_INCLUDE_TESTS=OFF -DCMAKE_C_COMPILER_LAUNCHER=sccache -DCMAKE_CXX_COMPILER_LAUNCHER=sccache'
+          build_target: 'check-all'
+
